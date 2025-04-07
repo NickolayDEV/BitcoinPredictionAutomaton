@@ -1,7 +1,7 @@
 API_KEY = "REMOVED"
 import torch
 from aiogram import Bot
-from model import myLSTM  # Заменить на твою архитектуру
+from model import myLSTM, inverse_transform
 import pandas as pd
 import asyncio
 import joblib
@@ -32,6 +32,7 @@ model.load_state_dict(torch.load("model2.pth"))
 model=model.to('cuda')
 model.eval()
 scaler = joblib.load("scaler.joblib")
+target_scaler=joblib.load("target_scaler.joblib")
 
 def predict():
     df = np.array(get_current_currency()).reshape(1,-1)
@@ -49,7 +50,10 @@ def predict():
             x=x.unsqueeze(1).to('cuda')
             output=model(x)   
             predictions.append(output.item())
-    return predictions
+    print(predictions)
+    data_result = inverse_transform(target_scaler, np.array(predictions).reshape(1, -1))
+    print(data_result)
+    return data_result
 
 # --- Асинхронная отправка в Telegram ---
 #async def send_prediction():

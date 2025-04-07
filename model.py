@@ -29,3 +29,7 @@ class myLSTM(nn.Module):
         out = F.relu(out)
         out = self.fc(out)
         return out
+def inverse_transform(target_scaler, data):
+
+    data = target_scaler.inverse_transform(data)
+    return data
