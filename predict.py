@@ -55,18 +55,16 @@ def predict():
     print(data_result)
     return data_result
 
-# --- Асинхронная отправка в Telegram ---
-#async def send_prediction():
-def send_prediction():
+
+async def send_prediction():
     pred = predict()
-    TOKEN = "ТВОЙ_ТОКЕН"
-    CHANNEL_ID = "@название_канала"  # или ID, если канал приватный
+    TOKEN = "REMOVED"
+    CHANNEL_ID = "@realquietwhale"  # или ID, если канал приватный
     bot = Bot(token=TOKEN)
     
     text = f"🔮 Прогноз курса BTC на завтра: {pred:.2f} USD"
-    #await bot.send_message(CHANNEL_ID, text)
-    #await bot.session.close()
-send_prediction()
-# --- Запуск скрипта ---
-#if __name__ == "__main__":
-#    asyncio.run(send_prediction())
+    await bot.send_message(CHANNEL_ID, text)
+    await bot.session.close()
+
+if __name__ == "__main__":
+    asyncio.run(send_prediction())
