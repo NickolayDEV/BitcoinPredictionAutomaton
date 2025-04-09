@@ -1,4 +1,3 @@
-API_KEY = "REMOVED"
 import torch
 from aiogram import Bot
 from model import myLSTM, inverse_transform
@@ -8,6 +7,9 @@ import joblib
 import numpy as np
 from data_request import get_current_currency
 from torch.utils.data import TensorDataset,DataLoader
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(device)
@@ -58,7 +60,7 @@ def predict():
 
 async def send_prediction():
     pred = predict()
-    TOKEN = "REMOVED"
+    TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
     CHANNEL_ID = "@realquietwhale"  # или ID, если канал приватный
     bot = Bot(token=TOKEN)
     

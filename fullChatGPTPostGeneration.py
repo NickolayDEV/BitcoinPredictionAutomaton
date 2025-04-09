@@ -1,8 +1,9 @@
 import requests
-# import openai
-
-# # 🔑 OpenAI API
-# openai.api_key = "your_openai_api_key"
+import openai
+from dotenv import load_dotenv
+import os
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Получаем данные с CoinGecko
 def get_btc_data():
