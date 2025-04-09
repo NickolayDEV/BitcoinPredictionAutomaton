@@ -2,8 +2,11 @@
 from datetime import datetime, timedelta
 from dateutil import tz
 import requests
+from dotenv import load_dotenv
+import os
+load_dotenv()
 def get_current_currency():
-    API_KEY = "REMOVED"
+    API_KEY = os.getenv("COINMARKET_API_KEY")
     symbol = "BTC"
 
     url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"

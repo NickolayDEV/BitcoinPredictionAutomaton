@@ -1,11 +1,12 @@
 import requests
-import openai
+# import openai
 
-# 🔑 OpenAI API
-openai.api_key = "your_openai_api_key"
+# # 🔑 OpenAI API
+# openai.api_key = "your_openai_api_key"
 
 # Получаем данные с CoinGecko
 def get_btc_data():
+    
     url = "https://api.coingecko.com/api/v3/simple/price"
     params = {
         "ids": "bitcoin",
@@ -49,5 +50,6 @@ def generate_post(price, change):
 # Основной запуск
 if __name__ == "__main__":
     price, change = get_btc_data()
+    print(price,change)
     post = generate_post(price, change)
     print(post)
