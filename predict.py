@@ -9,6 +9,10 @@ from data_request import get_current_currency
 from torch.utils.data import TensorDataset,DataLoader
 from dotenv import load_dotenv
 import os
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from fullGPTPrompts.quiet_whale_generator import generate_market_post
+from fullGPTPrompts.educational_post_generator import generate_educational_post
+from fullGPTPrompts.historical_post_generator import generate_historical_post
 load_dotenv()
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -60,13 +64,31 @@ def predict():
 
 async def send_prediction():
     pred = predict()
+    print(pred)
     TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
     CHANNEL_ID = "@realquietwhale"  # или ID, если канал приватный
     bot = Bot(token=TOKEN)
     
-    text = f"🔮 Прогноз курса BTC на завтра: {pred:.2f} USD"
+    text = f"🔮 Прогноз курса BTC на завтра: {pred[0,0]} USD"
     await bot.send_message(CHANNEL_ID, text)
     await bot.session.close()
+async def main():
+    edtopics=[]
+    histtopics=[]
+    marketpostargs=[]
+    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+
+    scheduler.add_job(send_prediction, 'cron', hour=0, minute=0)
+    scheduler.add_job(generate_historical_post, 'cron', hour=12, minute=0,args=[histtopics[np.random.randint(0,len(histtopics))]])
+    scheduler.add_job(generate_market_post, 'cron', hour=15, minute=0,args=marketpostargs)
+    scheduler.add_job(generate_educational_post, 'cron', hour=18, minute=0,args=[edtopics[np.random.randint(0,len(edtopics))]])
+
+    scheduler.start()
+    print("🤖 Бот и планировщик запущены.")
+    
+    while True:
+        await asyncio.sleep(3600)  # держим цикл живым
 
 if __name__ == "__main__":
-    asyncio.run(send_prediction())
+    asyncio.run(main())
+

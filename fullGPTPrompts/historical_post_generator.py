@@ -3,8 +3,13 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
+from aiogram import Bot
+import asyncio
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CHANNEL_ID = "@realquietwhale"
 
-def generate_historical_post(topic: str) -> str:
+bot = Bot(token=TOKEN)
+async def generate_historical_post(topic: str) -> str:
     prompt = f"""
 Ты — автор Telegram-канала "Quiet Whale", опытный трейдер и наблюдатель за финансовыми рынками. Пиши спокойно, без оценок, без рекомендаций.
 
@@ -17,12 +22,12 @@ def generate_historical_post(topic: str) -> str:
 Формат вывода — короткий текст до 800 символов, без заголовка и без хэштегов.
 """
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "user", "content": prompt.strip()}
         ],
         max_tokens=500,
         temperature=0.7,
     )
-
-    return response['choices'][0]['message']['content'].strip()
+    text=response['choices'][0]['message']['content'].strip()
+    await bot.send_message(CHANNEL_ID, text)
