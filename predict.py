@@ -1,11 +1,11 @@
 import torch
 from aiogram import Bot
-from model import myLSTM, inverse_transform
+from src.model import myLSTM, inverse_transform
 import pandas as pd
 import asyncio
 import joblib
 import numpy as np
-from data_request import get_current_currency
+from src.data_request import get_current_currency
 from torch.utils.data import TensorDataset,DataLoader
 from dotenv import load_dotenv
 import os
@@ -26,7 +26,7 @@ dropout = 0.3
 n_epochs = 200
 learning_rate = 5e-5
 weight_decay = 1e-4
-#Возможно придется перенести модель на CPU
+#Возможно, придется перенести модель на CPU
 model_params = {'input_dim': input_dim,
                 'hidden_dim' : hidden_dim,
                 'layer_dim' : layer_dim,
@@ -34,11 +34,11 @@ model_params = {'input_dim': input_dim,
                 'dropout_prob' : dropout,
                 'device' : device}
 model = myLSTM(**model_params)
-model.load_state_dict(torch.load("model2.pth"))
+model.load_state_dict(torch.load("artifacts/model2.pth"))
 model=model.to('cuda')
 model.eval()
-scaler = joblib.load("scaler.joblib")
-target_scaler=joblib.load("target_scaler.joblib")
+scaler = joblib.load("artifacts/scaler.joblib")
+target_scaler=joblib.load("artifacts/target_scaler.joblib")
 
 def predict():
     df = np.array(get_current_currency()).reshape(1,-1)
