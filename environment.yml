@@ -1,0 +1,25 @@
+name: btc-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pandas
+  - numpy
+  - pytorch
+  - plotly
+  - scikit-learn
+  - statsmodels
+  - sympy
+  - pip:
+    - scipy
+    - aiogram
+    - requests
+    - joblib
+    - apscheduler
+    - openai
+    - pillow
+    - python-dateutil
+    - python-dotenv
+    - urllib3
+

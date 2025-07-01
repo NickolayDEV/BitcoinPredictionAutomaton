@@ -13,10 +13,12 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fullGPTPrompts.quiet_whale_generator import generate_market_post
 from fullGPTPrompts.educational_post_generator import generate_educational_post
 from fullGPTPrompts.historical_post_generator import generate_historical_post
+import json
+import random
+
 load_dotenv()
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print(device)
+device ="cpu"
 input_dim = 2
 output_dim = 1
 hidden_dim = 512
@@ -32,10 +34,10 @@ model_params = {'input_dim': input_dim,
                 'layer_dim' : layer_dim,
                 'output_dim' : output_dim,
                 'dropout_prob' : dropout,
-                'device' : device}
+                'device' : device,}
 model = myLSTM(**model_params)
-model.load_state_dict(torch.load("artifacts/model2.pth"))
-model=model.to('cuda')
+model.load_state_dict(torch.load("artifacts/model2.pth",map_location=torch.device('cpu')))
+model=model
 model.eval()
 scaler = joblib.load("artifacts/scaler.joblib")
 target_scaler=joblib.load("artifacts/target_scaler.joblib")
@@ -53,7 +55,7 @@ def predict():
     with torch.no_grad():
         for batch in input_tensor:
             x=batch[0]
-            x=x.unsqueeze(1).to('cuda')
+            x=x.unsqueeze(1)
             output=model(x)   
             predictions.append(output.item())
     print(predictions)
@@ -72,16 +74,22 @@ async def send_prediction():
     text = f"🔮 Прогноз курса BTC на завтра: {pred[0,0]} USD"
     await bot.send_message(CHANNEL_ID, text)
     await bot.session.close()
+def load_topics(filepath):
+    with open(filepath, "r", encoding="utf-8") as f:
+        topics = json.load(f)
+    if not topics:
+        raise ValueError(f"Файл {filepath} пуст.")
+    return topics
 async def main():
-    edtopics=[]
-    histtopics=[]
-    marketpostargs=[]
+    histtopics = load_topics("data/historical_topics.json")
+    edtopics = load_topics("data/educational_topics.json")
+    marketpostargs=load_topics("data/popular_coins.json")
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
 
     scheduler.add_job(send_prediction, 'cron', hour=0, minute=0)
-    scheduler.add_job(generate_historical_post, 'cron', hour=12, minute=0,args=[histtopics[np.random.randint(0,len(histtopics))]])
-    scheduler.add_job(generate_market_post, 'cron', hour=15, minute=0,args=marketpostargs)
-    scheduler.add_job(generate_educational_post, 'cron', hour=18, minute=0,args=[edtopics[np.random.randint(0,len(edtopics))]])
+    scheduler.add_job(generate_historical_post, 'cron', hour=12, minute=0,args=[random.choice(histtopics)])
+    scheduler.add_job(generate_market_post, 'cron', hour=15, minute=0,args=[random.choice(marketpostargs)['id']])
+    scheduler.add_job(generate_educational_post, 'cron', hour=18, minute=0,args=[random.choice(edtopics)])
 
     scheduler.start()
     print("🤖 Бот и планировщик запущены.")

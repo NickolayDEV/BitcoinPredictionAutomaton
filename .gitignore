@@ -3,3 +3,5 @@ btcusd_1-min_data.csv
 __pycache__/
 *.pyc
 *.pyo
+requirements.txt
+requirementsI.txt

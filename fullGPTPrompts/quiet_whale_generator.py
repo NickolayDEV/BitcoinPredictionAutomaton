@@ -9,7 +9,7 @@ load_dotenv()
 
 client = OpenAI(api_key = os.getenv("OPENAI_API_KEY")) 
 
-def fetch_coin_data(coin_id: str, vs_currency: str = "usd") -> dict:
+def fetch_coin_data(coin_id: str='bitcoin', vs_currency: str = "usd") -> dict:
     """
     Получает метрики монеты с CoinGecko по coin_id (например, 'bitcoin')
     """
@@ -56,12 +56,12 @@ def fetch_coin_data(coin_id: str, vs_currency: str = "usd") -> dict:
     }
 
 
-def generate_market_post(metrics: dict) -> str:
+def generate_market_post(coin_id) -> str:
     """
     Генерирует спокойный аналитический пост в стиле Quiet Whale
     на основе рыночных метрик криптовалюты.
     """
-
+    metrics = fetch_coin_data(coin_id)
     formatted_lines = []
     for key, value in metrics.items():
         if isinstance(value, str):
