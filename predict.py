@@ -70,6 +70,8 @@ async def send_prediction():
         text = f"🔮 Существенного изменеия в курсе не ожидается."
     elif pred[0]<0:
         text = f"🔮 BTC может завтра упасть на сумму вплоть до {pred[0]} USD."
+    else:
+        return
     await bot.send_message(CHANNEL_ID, text)
     await bot.session.close()
 def load_topics(filepath):
