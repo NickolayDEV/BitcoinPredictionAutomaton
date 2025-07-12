@@ -19,16 +19,15 @@ import random
 load_dotenv()
 
 device ="cpu"
-input_dim = 2
+input_dim = 3
 output_dim = 1
 hidden_dim = 512
 layer_dim = 2
 batch_size = 64
 dropout = 0.3
-n_epochs = 200
+n_epochs = 100
 learning_rate = 5e-5
 weight_decay = 1e-4
-#Возможно, придется перенести модель на CPU
 model_params = {'input_dim': input_dim,
                 'hidden_dim' : hidden_dim,
                 'layer_dim' : layer_dim,
@@ -37,7 +36,6 @@ model_params = {'input_dim': input_dim,
                 'device' : device,}
 model = myLSTM(**model_params)
 model.load_state_dict(torch.load("artifacts/model2.pth",map_location=torch.device('cpu')))
-model=model
 model.eval()
 scaler = joblib.load("artifacts/scaler.joblib")
 target_scaler=joblib.load("artifacts/target_scaler.joblib")

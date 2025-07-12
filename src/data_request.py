@@ -4,6 +4,7 @@ from dateutil import tz
 import requests
 from dotenv import load_dotenv
 import os
+import numpy as np
 load_dotenv()
 def get_current_currency():
     API_KEY = os.getenv("COINMARKET_API_KEY")
@@ -25,7 +26,8 @@ def get_current_currency():
     data = response.json()
 
     price = data["data"]["BTC"]["quote"]["USD"]["price"]
+    volume_24h = data["data"]["BTC"]["quote"]["USD"]["volume_24h"]
     market_cap = data["data"]["BTC"]["quote"]["USD"]["market_cap"]
 
-    return market_cap,price
+    return np.log1p(market_cap),np.log1p(volume_24h),np.log1p(price)
 
