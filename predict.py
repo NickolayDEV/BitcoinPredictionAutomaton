@@ -42,10 +42,7 @@ target_scaler=joblib.load("artifacts/target_scaler.joblib")
 
 def predict():
     df = np.array(get_current_currency()).reshape(1,-1)
-    print(df)
     df=scaler.transform(df)
-    print(df)
-    
     input_tensor = torch.Tensor(df)
     input_tensor=TensorDataset(input_tensor)
     input_tensor=DataLoader(input_tensor, batch_size=1, shuffle=False)
@@ -56,10 +53,9 @@ def predict():
             x=x.unsqueeze(1)
             output=model(x)   
             predictions.append(output.item())
-    print(predictions)
     data_result = inverse_transform(target_scaler, np.array(predictions).reshape(1, -1))
-    print(data_result)
-    return data_result
+
+    return [np.expm1(i)- np.expm1(df[2]) for i in data_result]
 
 
 async def send_prediction():
@@ -68,8 +64,12 @@ async def send_prediction():
     TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
     CHANNEL_ID = "@realquietwhale"  # или ID, если канал приватный
     bot = Bot(token=TOKEN)
-    
-    text = f"🔮 Прогноз курса BTC на завтра: {pred[0,0]} USD"
+    if pred[0]>0:
+        text = f"🔮 BTC может завтра вырасти на сумму вплоть до {pred[0]} USD."
+    elif pred[0]==0:
+        text = f"🔮 Существенного изменеия в курсе не ожидается."
+    elif pred[0]<0:
+        text = f"🔮 BTC может завтра упасть на сумму вплоть до {pred[0]} USD."
     await bot.send_message(CHANNEL_ID, text)
     await bot.session.close()
 def load_topics(filepath):
