@@ -88,11 +88,11 @@ async def main():
     marketpostargs=load_topics("data/popular_coins.json")
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
 
-    scheduler.add_job(send_prediction, 'cron', hour=18, minute=18)
-    scheduler.add_job(generate_historical_post, 'cron', hour=18, minute=14,args=[random.choice(histtopics)])
-    scheduler.add_job(generate_market_post, 'cron', hour=18, minute=15, args=[random.choice(marketpostargs)['id']])
-    scheduler.add_job(generate_educational_post, 'cron', hour=18, minute=16,args=[random.choice(edtopics)])
-    scheduler.add_job(generate_post, 'cron', hour=18, minute=17)
+    scheduler.add_job(send_prediction, 'cron', hour=18, minute=20)
+    scheduler.add_job(generate_historical_post, 'cron', hour=18, minute=21,args=[random.choice(histtopics)])
+    scheduler.add_job(generate_market_post, 'cron', hour=18, minute=22, args=[random.choice(marketpostargs)['id']])
+    scheduler.add_job(generate_educational_post, 'cron', hour=18, minute=23,args=[random.choice(edtopics)])
+    scheduler.add_job(generate_post, 'cron', hour=18, minute=24)
     scheduler.start()
     print("🤖 Бот и планировщик запущены.")
     
