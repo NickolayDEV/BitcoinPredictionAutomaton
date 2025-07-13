@@ -92,7 +92,7 @@ async def main():
     scheduler.add_job(generate_historical_post, 'cron', hour=12, minute=00,args=[random.choice(histtopics)])
     scheduler.add_job(generate_market_post, 'cron', hour=15, minute=00, args=[random.choice(marketpostargs)['id']])
     scheduler.add_job(generate_educational_post, 'cron', hour=18, minute=00,args=[random.choice(edtopics)])
-    scheduler.add_job(generate_post, 'cron', hour=12, minute=58)
+    scheduler.add_job(generate_post, 'cron', hour=21, minute=00)
     scheduler.start()
     print("🤖 Бот и планировщик запущены.")
     
