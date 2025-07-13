@@ -1,12 +1,12 @@
 import os
-import openai
+from openai import AsyncOpenAI
 from aiogram import Bot
 import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHANNEL_ID = "@realquietwhale"
 
@@ -26,19 +26,15 @@ async def generate_educational_post(topic: str) -> None:
 Формат вывода — короткий текст до 800 символов, без заголовка и без хэштегов.
 """.strip()
 
-    try:
-        response = openai.ChatCompletion.create(
+    response = await client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=500,
             temperature=0.7,
         )
-        text = response['choices'][0]['message']['content'].strip()
-        await bot.send_message(CHANNEL_ID, text)
-        print("Сообщение отправлено.")
-    except Exception as e:
-        print(f"Ошибка при генерации или отправке поста: {e}")
+    text = response.choices[0].message.content.strip()
+    await bot.send_message(CHANNEL_ID, text)
 
-# Пример запуска (если файл выполняется напрямую)
+
 if __name__ == "__main__":
     asyncio.run(generate_educational_post("Что такое деривативы на крипторынке?"))

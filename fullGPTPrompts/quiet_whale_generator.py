@@ -1,13 +1,16 @@
-from openai import OpenAI
+from openai import AsyncOpenAI
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+from aiogram import Bot
 load_dotenv()
 
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CHANNEL_ID = "@realquietwhale"
+bot = Bot(token=TOKEN)
 
-
-client = OpenAI(api_key = os.getenv("OPENAI_API_KEY")) 
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def fetch_coin_data(coin_id: str='bitcoin', vs_currency: str = "usd") -> dict:
     """
@@ -56,7 +59,7 @@ def fetch_coin_data(coin_id: str='bitcoin', vs_currency: str = "usd") -> dict:
     }
 
 
-def generate_market_post(coin_id) -> str:
+async def generate_market_post(coin_id) -> str:
     """
     Генерирует спокойный аналитический пост в стиле Quiet Whale
     на основе рыночных метрик криптовалюты.
@@ -89,7 +92,7 @@ def generate_market_post(coin_id) -> str:
 {formatted_metrics}
 """
 # Запрос в OpenAI
-    response = client.chat.completions.create(
+    response = await client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user", "content": prompt.strip()}
@@ -97,7 +100,7 @@ def generate_market_post(coin_id) -> str:
         max_tokens=500,
         temperature=0.7,
     )
-
-    return response.choices[0].message.content.strip()
+    await bot.send_message(CHANNEL_ID, response.choices[0].message.content.strip())
+    return 
 if __name__ == "__main__":
     print(generate_market_post(fetch_coin_data(coin_id='bitcoin')))

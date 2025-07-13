@@ -1,8 +1,8 @@
-import openai
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 import os
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 from aiogram import Bot
 import asyncio
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -21,7 +21,7 @@ async def generate_historical_post(topic: str) -> str:
 
 Формат вывода — короткий текст до 800 символов, без заголовка и без хэштегов.
 """
-    response = openai.ChatCompletion.create(
+    response = await client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user", "content": prompt.strip()}
@@ -29,5 +29,5 @@ async def generate_historical_post(topic: str) -> str:
         max_tokens=500,
         temperature=0.7,
     )
-    text=response['choices'][0]['message']['content'].strip()
+    text = response.choices[0].message.content.strip()
     await bot.send_message(CHANNEL_ID, text)

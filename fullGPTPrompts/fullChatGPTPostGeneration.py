@@ -1,9 +1,13 @@
 import requests
-import openai
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 import os
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from aiogram import Bot
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+bot = Bot(token=TOKEN)
+CHANNEL_ID = "@realquietwhale"
 
 # Получаем данные с CoinGecko
 def get_btc_data():
@@ -21,24 +25,17 @@ def get_btc_data():
     return price, change
 
 # Генерация текста через GPT
-def generate_post(price, change):
-    prompt = f"""
-Ты автор Telegram-канала "Quiet Whale". Напиши аналитический пост по биткоину, используя следующие данные:
+async def generate_post():
 
-- Текущая цена BTC: ${price}
-- Изменение за 24ч: {change}%
-- Добавь рассуждения про уровни поддержки/сопротивления, RSI, ончейн-активность (примерно, как если бы ты смотрел на график).
-- Можешь упомянуть фонды, доллар или макро-фон, если уместно.
-- Тон: спокойный, аналитический. Без призывов, без рекомендаций. Просто наблюдение.
-- Структура:
-  1. Заголовок (1 строка)
-  2. Основной текст (3–4 абзаца)
-  3. Финальный вывод — как сценарий
+    price, change = get_btc_data()
+    prompt = prompt = f"""
+Цена биткоина сегодня составляет ${price}, изменение за сутки — {change}%.
+Поделись спокойным наблюдением за ситуацией на рынке BTC. Можно упомянуть уровни, поведение цены, индикаторы, ончейн-данные или макро-фон. Пиши как опытный трейдер: без шаблонов, без структуры, без заголовков. Просто как если бы ты написал короткий, но вдумчивый пост для коллег.
 
-Пиши так, как будто ты опытный, но рассудительный трейдер.
+Не используй шаблоны, не добавляй заключения. Просто мысли по рынку.
 """
 
-    response = openai.ChatCompletion.create(
+    response = await client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "Ты крипто-аналитик, автор канала Quiet Whale"},
@@ -46,11 +43,11 @@ def generate_post(price, change):
         ],
         temperature=0.7
     )
-    return response["choices"][0]["message"]["content"]
+    text = response.choices[0].message.content.strip()
+    await bot.send_message(CHANNEL_ID, text)
 
 # Основной запуск
 if __name__ == "__main__":
-    price, change = get_btc_data()
-    print(price,change)
-    post = generate_post(price, change)
+    
+    post = generate_post()
     print(post)

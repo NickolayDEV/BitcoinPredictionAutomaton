@@ -13,6 +13,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fullGPTPrompts.quiet_whale_generator import generate_market_post
 from fullGPTPrompts.educational_post_generator import generate_educational_post
 from fullGPTPrompts.historical_post_generator import generate_historical_post
+from fullGPTPrompts.fullChatGPTPostGeneration import generate_post
 import json
 import random
 
@@ -42,6 +43,7 @@ target_scaler=joblib.load("artifacts/target_scaler.joblib")
 
 def predict():
     df = np.array(get_current_currency()).reshape(1,-1)
+    actual_price=np.expm1(df[0,2])
     df=scaler.transform(df)
     input_tensor = torch.Tensor(df)
     input_tensor=TensorDataset(input_tensor)
@@ -54,8 +56,8 @@ def predict():
             output=model(x)   
             predictions.append(output.item())
     data_result = inverse_transform(target_scaler, np.array(predictions).reshape(1, -1))
-
-    return [np.expm1(i)- np.expm1(df[2]) for i in data_result]
+    print(actual_price)
+    return [np.expm1(i)- actual_price for i in data_result[0]]
 
 
 async def send_prediction():
@@ -65,11 +67,11 @@ async def send_prediction():
     CHANNEL_ID = "@realquietwhale"  # или ID, если канал приватный
     bot = Bot(token=TOKEN)
     if pred[0]>0:
-        text = f"🔮 BTC может завтра вырасти на сумму вплоть до {pred[0]} USD."
+        text = f"🔮 BTC за завтрашний день может вырасти на сумму вплоть до {np.absolute(pred[0]):.1f} USD."
     elif pred[0]==0:
         text = f"🔮 Существенного изменеия в курсе не ожидается."
     elif pred[0]<0:
-        text = f"🔮 BTC может завтра упасть на сумму вплоть до {pred[0]} USD."
+        text = f"🔮 BTC за завтрашний день может упасть на сумму вплоть до {np.absolute(pred[0]):.1f} USD."
     else:
         return
     await bot.send_message(CHANNEL_ID, text)
@@ -87,10 +89,10 @@ async def main():
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
 
     scheduler.add_job(send_prediction, 'cron', hour=0, minute=0)
-    scheduler.add_job(generate_historical_post, 'cron', hour=12, minute=0,args=[random.choice(histtopics)])
-    scheduler.add_job(generate_market_post, 'cron', hour=15, minute=0,args=[random.choice(marketpostargs)['id']])
-    scheduler.add_job(generate_educational_post, 'cron', hour=18, minute=0,args=[random.choice(edtopics)])
-
+    scheduler.add_job(generate_historical_post, 'cron', hour=12, minute=00,args=[random.choice(histtopics)])
+    scheduler.add_job(generate_market_post, 'cron', hour=15, minute=00, args=[random.choice(marketpostargs)['id']])
+    scheduler.add_job(generate_educational_post, 'cron', hour=18, minute=00,args=[random.choice(edtopics)])
+    scheduler.add_job(generate_post, 'cron', hour=12, minute=58)
     scheduler.start()
     print("🤖 Бот и планировщик запущены.")
     
@@ -99,4 +101,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
+    
