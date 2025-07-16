@@ -18,4 +18,4 @@ ENV PYTHONUNBUFFERED=1 \
     PATH=/opt/conda/envs/btc-env/bin:$PATH
 
 # Запуск с активированным окружением
-CMD ["bash", "-c", "conda run --no-capture-output -n btc-env python predict.py >> logs.txt 2>&1"]
+CMD ["conda", "run", "--no-capture-output", "-n", "btc-env", "python", "predict.py"]

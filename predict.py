@@ -82,17 +82,25 @@ def load_topics(filepath):
     if not topics:
         raise ValueError(f"Файл {filepath} пуст.")
     return topics
+async def scheduled_generate_historical_post():
+    topic = random.choice(load_topics("data/historical_topics.json"))
+    await generate_historical_post(topic)
+
+async def scheduled_generate_market_post():
+    topic = random.choice(load_topics("data/popular_coins.json"))["id"]
+    await generate_market_post(topic)
+
+async def scheduled_generate_educational_post():
+    topic = random.choice(load_topics("data/educational_topics.json"))
+    await generate_educational_post(topic)
 async def main():
-    histtopics = load_topics("data/historical_topics.json")
-    edtopics = load_topics("data/educational_topics.json")
-    marketpostargs=load_topics("data/popular_coins.json")
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
 
     scheduler.add_job(send_prediction, 'cron', hour=0, minute=0)
-    scheduler.add_job(generate_historical_post, 'cron', hour=12, minute=0,args=[random.choice(histtopics)])
-    scheduler.add_job(generate_market_post, 'cron', hour=15, minute=0, args=[random.choice(marketpostargs)['id']])
-    scheduler.add_job(generate_educational_post, 'cron', hour=18, minute=0,args=[random.choice(edtopics)])
-    scheduler.add_job(generate_post, 'cron', hour=21, minute=0)
+    scheduler.add_job(scheduled_generate_historical_post, 'cron', hour=12, minute=0)
+    scheduler.add_job(scheduled_generate_market_post, 'cron', hour=15, minute=42)
+    scheduler.add_job(scheduled_generate_educational_post, 'cron', hour=15, minute=42)
+    scheduler.add_job(generate_post, 'cron', hour=15, minute=42)
     scheduler.start()
     print("🤖 Бот и планировщик запущены.")
     

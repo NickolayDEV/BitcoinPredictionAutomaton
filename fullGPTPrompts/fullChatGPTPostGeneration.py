@@ -5,8 +5,10 @@ import os
 load_dotenv()
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 from aiogram import Bot
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-bot = Bot(token=TOKEN)
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
 CHANNEL_ID = "@realquietwhale"
 
 # Получаем данные с CoinGecko
