@@ -98,9 +98,9 @@ async def main():
 
     scheduler.add_job(send_prediction, 'cron', hour=0, minute=0)
     scheduler.add_job(scheduled_generate_historical_post, 'cron', hour=12, minute=0)
-    scheduler.add_job(scheduled_generate_market_post, 'cron', hour=15, minute=42)
-    scheduler.add_job(scheduled_generate_educational_post, 'cron', hour=15, minute=42)
-    scheduler.add_job(generate_post, 'cron', hour=15, minute=42)
+    scheduler.add_job(scheduled_generate_market_post, 'cron', hour=15, minute=0)
+    scheduler.add_job(scheduled_generate_educational_post, 'cron', hour=18, minute=0)
+    scheduler.add_job(generate_post, 'cron', hour=21, minute=0)
     scheduler.start()
     print("🤖 Бот и планировщик запущены.")
     
