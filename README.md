@@ -4,6 +4,7 @@ It also integrates with GPT to generate text-based posts and insights.
 
 In addition, the project includes a fully deployed Telegram bot that runs in real time to automate market analysis, educational content, and BTC price forecasts for the channel [@realquietwhale](https://t.me/realquietwhale).
 Posts are scheduled and generated daily using AI and up-to-date financial data.
+
 ---
 
 ## Features
